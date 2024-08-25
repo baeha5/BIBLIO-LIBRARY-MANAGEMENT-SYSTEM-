@@ -1,0 +1,431 @@
+//biblio library system
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_BOOKS 100
+#define MAX_TITLE_LENGTH 100
+#define MAX_MEMBERSHIPS 100
+#define MAX_NAME_LENGTH 100
+
+struct Book
+{
+char title[MAX_TITLE_LENGTH];
+int year;
+int Available;
+};
+struct Membership
+{
+char name[MAX_NAME_LENGTH];
+float discount;
+};
+struct Book library[MAX_BOOKS];
+struct Membership memberships[MAX_MEMBERSHIPS];
+int num_Books = 0;
+int num_Memberships = 0;
+//function in library system
+void addBook(); //void with no parameter
+void displayBooks(); //void with no parameter
+void searchBook();//void with no parameter
+float calculateLateReturnFine(int daysLate, float discount);//non-void with parameter
+float calculateBookDamageFine(float discount);//non-void with parameter
+void addMembership();//void with no parameter
+void borrowBook();//void with no parameter
+void returnBook();//void with no parameter
+void updateBookAvailability(struct Book* library, int num_Books, const char* title, int availability);//void with parameter and pointer
+void printTitle(); //file operations
+int totalBooks(); //non-void with no parameter
+
+// Function to add a book to the library
+void addBook()
+{
+char choice;
+do
+{
+struct Book new_Book;
+printf("Enter the title of the book: ");
+fgets(new_Book.title, sizeof(new_Book.title), stdin);
+new_Book.title[strcspn(new_Book.title, "\n")] = '\0';
+printf("Enter the publication year of the book: ");
+scanf("%d", &new_Book.year);
+getchar();
+printf("-------------------------------\n");
+new_Book.Available = 1;
+library[num_Books++] = new_Book;
+printf("Book added successfully.\n");
+printf("-------------------------------\n");
+printf("Do you want to add more books? (y/n): ");
+scanf("%c", &choice);
+getchar();
+printf("-------------------------------\n");
+}
+// Open a new book file in write mode for each book added
+FILE *Newbook = fopen(new_Book.title, "w");
+if (Newbook == NULL) {
+printf("Error creating file for the book.\n");
+return;
+}
+// Write book details to the file
+fprintf(Newbook, "Title: %s\nYear: %d\nAvailability: %s\n", new_Book.title, new_Book.year, new_Book.Available ? "Available" : "Not Available");
+fclose(Newbook); // Close the file
+while (choice == 'y' || choice == 'Y');
+}
+// Function to display the list of books in the library
+void displayBooks()
+{
+if (num_Books == 0)
+{
+printf("No books in the library.\n");
+return;
+}
+printf("Books in the library:\n");
+printf("===============================================================\n");
+printf("%-30s %-10s %-12s\n", "Title", "Year", "Availability");
+ printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+for (int i = 0; i < num_Books; i++)
+{
+printf("%-30s %-10d %-12s\n", library[i].title, library[i].year, library[i].Available ? "Available" : "Not Available");
+}
+printf("===============================================================\n");
+}
+// Function to search for a book by its title
+void searchBook(struct Book* library, int num_Books)
+{
+char choice;
+do
+{
+if (num_Books == 0)
+{
+printf("No books in the library.\n");
+return;
+}
+char searchTitle[MAX_TITLE_LENGTH];
+printf("Enter the title of the book to search: ");
+fgets(searchTitle, sizeof(searchTitle), stdin);
+searchTitle[strcspn(searchTitle, "\n")] = '\0';
+for (int i = 0; i < num_Books; i++)
+{
+if (strcmp(searchTitle, library[i].title) == 0)
+{
+printf("Book found:\n");
+printf("Title: %s\n", library[i].title);
+printf("Year: %d\n", library[i].year);
+printf("Availability: %s\n", library[i].Available ? "Available" : "Not Available");
+printf("-------------------------------\n");
+break;
+}
+}
+printf("-------------------------------\n");
+printf("Do you want to search for more books? (y/n):");
+scanf("%c", &choice);
+getchar();
+printf("-------------------------------\n");
+}while (choice == 'y' || choice == 'Y');
+}
+// Function to calculate fine for late return
+float calculateLateReturnFine(int daysLate, float discount)
+{
+float finePerDay = 2.5;
+float totalFine = finePerDay * daysLate;
+float discountedFine = totalFine - (totalFine * discount);
+return discountedFine;
+}
+// Function to calculate fine for book damage
+float calculateBookDamageFine(float discount)
+{
+float damageFine = 50.0;
+float discountedFine = damageFine - (damageFine * discount);
+return discountedFine;
+}
+// Function to add a new membership
+void addMembership()
+{
+if (num_Memberships == MAX_MEMBERSHIPS)
+{
+printf("Maximum number of memberships reached.\n");
+return;
+}
+struct Membership new_Membership;
+printf("Enter the name of the member: ");
+fgets(new_Membership.name, sizeof(new_Membership.name), stdin);
+new_Membership.name[strcspn(new_Membership.name, "\n")] = '\0';
+memberships[num_Memberships++] = new_Membership;
+printf("Membership added successfully.\n");
+printf("Congratulation!!! Now you can enjoy 5 percent discount for any fine payment\n");
+}
+// Function to borrow a book
+void borrowBook()
+{
+char choice;
+do
+{
+if (num_Books == 0)
+{
+printf("No books in the library.\n");
+return;
+}
+char searchTitle[MAX_TITLE_LENGTH];
+printf("Enter the title of the book to borrow: ");
+fgets(searchTitle, sizeof(searchTitle), stdin);
+searchTitle[strcspn(searchTitle, "\n")] = '\0';
+for (int i = 0; i < num_Books; i++)
+{
+if (strcmp(searchTitle, library[i].title) == 0)
+{
+if (library[i].Available)
+{
+library[i].Available = 0;
+printf("Book '%s' borrowed successfully.\n", library[i].title);
+}
+else
+{
+printf("Book '%s' is already borrowed.\n", library[i].title);
+}
+break;
+}
+}
+printf("-------------------------------\n");
+printf("Do you want to borrow more books? (y/n): ");
+scanf("%c", &choice);
+getchar();
+printf("-------------------------------\n");
+}
+while (choice == 'y' || choice == 'Y');
+}
+// Function to return a book
+void returnBook()
+{
+char choice;
+float totalFine = 0.0;
+do
+{
+if (num_Books == 0)
+{
+printf("No books in the library.\n");
+return;
+}
+char returnTitle[MAX_TITLE_LENGTH];
+printf("Enter the title of the book to return: ");
+fgets(returnTitle, sizeof(returnTitle), stdin);
+returnTitle[strcspn(returnTitle, "\n")] = '\0';
+int bookFound = 0;
+for (int i = 0; i < num_Books; i++)
+{
+if (strcmp(returnTitle, library[i].title) == 0)
+{
+if (!library[i].Available)
+{
+library[i].Available = 1;
+printf("Book '%s' returned successfully.\n", library[i].title);
+bookFound = 1;
+// Calculate fine for late return
+int daysLate;
+printf("Enter the number of days the book is late: ");
+scanf("%d", &daysLate);
+getchar();
+float discount = 0.0;
+if (num_Memberships > 0)
+{
+						printf("-------------------------------\n");
+printf("Do you have a membership? (y/n): ");
+char hasMembership;
+scanf(" %c", &hasMembership);
+getchar();
+printf("-------------------------------\n");
+if (hasMembership == 'y' || hasMembership == 'Y')
+{
+ printf("Enter the membership name (case-sensitive): ");
+ char membershipName[MAX_NAME_LENGTH];
+ fgets(membershipName, sizeof(membershipName), stdin);
+ membershipName[strcspn(membershipName, "\n")] = '\0';
+ discount = 0.05;
+ }
+ }
+float fineAmount = calculateLateReturnFine(daysLate, discount);
+char isDamaged;
+printf("-------------------------------\n");
+printf("Is the book damaged? (y/n): ");
+scanf(" %c", &isDamaged);
+getchar();
+printf("-------------------------------\n");
+if (isDamaged == 'y' || isDamaged == 'Y')
+{
+float damageFine = 50.0;
+printf("Fine amount for damaged book: RM%.2f\n", damageFine);
+fineAmount += damageFine;
+}
+printf("Total fine amount: RM%.2f\n", fineAmount);
+totalFine += fineAmount;
+break;
+}
+else
+{
+printf("Book '%s' is not borrowed.\n", library[i].title);
+bookFound = 1;
+break;
+}
+}
+}
+if (!bookFound)
+{
+printf("Book '%s' not found.\n", returnTitle);
+}
+printf("-------------------------------\n");
+printf("Do you want to return more books? (y/n): ");
+scanf(" %c", &choice);
+getchar();
+printf("-------------------------------\n");
+}
+while (choice == 'y' || choice == 'Y');
+printf("Total fine amount (including book damage): RM%.2f\n", totalFine);
+}
+
+// Function to update a book's availability
+void updateBookAvailability(struct Book* library, int num_Books, const char* title, int availability) {
+for (int i = 0; i < num_Books; i++) {
+if (strcmp(title, library[i].title) == 0) {
+library[i].Available = availability;
+break;}
+}
+}
+// Function to calculate the total number of books in the library
+int totalBooks()
+{
+return num_Books;
+}
+// Function to declare file and print title
+void printTitle() 
+{
+FILE *myFile;
+char Title[100];
+myFile = fopen("Title.txt", "w"); // Open the text file
+fprintf(myFile, "====================*** WELCOME TO BIBLIO LIBRARY MANAGEMENT SYSTEM ***====================\n"); // Write to the file
+fclose(myFile);
+myFile = fopen("Title.txt", "r"); // Open the file for reading
+fgets(Title, 100, myFile);
+puts(Title); // Print the title to the top of the screen
+fclose(myFile); // Close the file
+}
+
+int main()
+{
+int choice;
+int user;
+printTitle(); // Call the function to print the title
+do
+{  
+printf("======================================= LOGIN MENU ========================================\n");
+printf("\t\t\t\t\t1. Staff\n");
+printf("\t\t\t\t\t2. Student\n");
+printf("\t\t\t\t\t3. Exit\n\n");
+printf("\t\t\t\t\tEnter your choice: ");
+scanf("%d", &user);
+printf("===========================================================================================\n");    
+getchar();
+if (user == 1)
+{
+int staffChoice;
+printf("\n========= STAFF MENU ==========\n");
+printf("1. Add Book\n");
+printf("2. Display Book\n");
+printf("3. Search Book\n");
+printf("4. Book Availability\n");
+printf("5. Add Membership\n");
+printf("6. Fine Book\n");
+printf("7. Total Book in library\n");
+printf("8. Logout\n");
+printf("\nEnter your choice: ");
+scanf("%d", &staffChoice);
+printf("-------------------------------\n");
+getchar();
+switch (staffChoice)
+{
+case 1:
+addBook();
+break;
+case 2:
+displayBooks();
+break;
+case 3:
+searchBook();
+break;
+case 4:
+{
+char title[MAX_TITLE_LENGTH];
+int availability;
+printf("Enter the title of the book: ");
+fgets(title, sizeof(title), stdin);
+title[strcspn(title, "\n")] = '\0';
+printf("Enter the new availability (1 = Available, 0 = Not Available): ");
+scanf("%d", &availability);
+getchar();
+updateBookAvailability(library, num_Books, title, availability);
+printf("Book availability updated successfully.\n");
+printf("-------------------------------\n");
+}
+break;
+case 5:
+addMembership();
+break;
+case 6:
+returnBook();
+break;
+case 7:
+printf("Total books in the library: %d\n", totalBooks());
+break;
+case 8:
+printf("Logging out from Staff account.\n");
+break;
+default:
+printf("Invalid choice. Please try again.\n");
+break;
+}
+}
+else if (user == 2)
+{
+int studentChoice;
+printf("\n========= STUDENT MENU =========\n");
+printf("1. Display Book\n");
+printf("2. Search Book\n");
+printf("3. Borrow Book\n");
+printf("4. Return Book\n");
+printf("5. Logout\n");
+printf("Enter your choice: ");
+scanf("%d", &studentChoice);
+printf("-------------------------------\n");
+getchar();
+switch (studentChoice)
+{
+case 1:
+displayBooks();
+break;
+case 2:
+searchBook();
+break;
+case 3:
+borrowBook();
+break;
+case 4:
+returnBook();
+break;
+case 5:
+printf("Logging out from Student account.\n");
+break;
+default:
+printf("Invalid choice. Please try again.\n");
+break;
+}
+}
+else if (user == 3)
+{
+printf("THANK YOU FOR VISITING US !!! <33\n");
+printf("Please Come Again Later XOXO\n");
+}
+else
+{
+printf("Invalid choice. Please try again.\n");
+}
+printf("\n");
+}
+while (user != 3);
+return 0;
+}
